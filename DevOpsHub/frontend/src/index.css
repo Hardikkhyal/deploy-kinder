@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --bg-color: #F2F2F2;
+  --text-color: #1E1E1E;
+  --text-muted: #7A7A7A;
+  --shadow-raised: 8px 8px 18px rgba(0, 0, 0, 0.12), -8px -8px 18px rgba(255, 255, 255, 1);
+  --shadow-raised-lg: 12px 12px 26px rgba(0, 0, 0, 0.14), -12px -12px 26px rgba(255, 255, 255, 1);
+  --shadow-small: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(255, 255, 255, 1);
+  --shadow-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 1);
+  --shadow-card: 10px 10px 22px rgba(0, 0, 0, 0.12), -10px -10px 22px rgba(255, 255, 255, 1);
+  --shadow-card-hover: 14px 14px 28px rgba(0, 0, 0, 0.15), -14px -14px 28px rgba(255, 255, 255, 1);
+  --shadow-button: 6px 6px 14px rgba(0, 0, 0, 0.12), -6px -6px 14px rgba(255, 255, 255, 1);
+  --shadow-button-hover: 8px 8px 16px rgba(0, 0, 0, 0.14), -8px -8px 16px rgba(255, 255, 255, 1);
+  --shadow-button-active: inset 5px 5px 10px rgba(0, 0, 0, 0.12), inset -5px -5px 10px rgba(255, 255, 255, 1);
+  --shadow-accent: 6px 6px 14px rgba(37, 99, 235, 0.35), -6px -6px 14px rgba(255, 255, 255, 0.5);
+  --shadow-accent-hover: 8px 8px 18px rgba(37, 99, 235, 0.4), -8px -8px 18px rgba(255, 255, 255, 0.6);
+  --shadow-accent-active: inset 5px 5px 10px rgba(0, 0, 0, 0.25);
+  --shadow-input: inset 5px 5px 10px rgba(0, 0, 0, 0.1), inset -5px -5px 10px rgba(255, 255, 255, 1);
+  --shadow-icon-container: 6px 6px 12px rgba(0, 0, 0, 0.12), -6px -6px 12px rgba(255, 255, 255, 1);
+  --shadow-badge: 3px 3px 8px rgba(0, 0, 0, 0.08), -3px -3px 8px rgba(255, 255, 255, 1);
+  --shadow-modal: 16px 16px 36px rgba(0, 0, 0, 0.15), -16px -16px 36px rgba(255, 255, 255, 1);
+}
+
+.dark {
+  --bg-color: #1E1E20;
+  --text-color: #E4E4E7;
+  --text-muted: #9E9E9E;
+  --shadow-raised: 8px 8px 18px rgba(0, 0, 0, 0.45), -8px -8px 18px rgba(255, 255, 255, 0.04);
+  --shadow-raised-lg: 12px 12px 26px rgba(0, 0, 0, 0.55), -12px -12px 26px rgba(255, 255, 255, 0.05);
+  --shadow-small: 4px 4px 10px rgba(0, 0, 0, 0.35), -4px -4px 10px rgba(255, 255, 255, 0.03);
+  --shadow-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.03);
+  --shadow-card: 10px 10px 22px rgba(0, 0, 0, 0.45), -10px -10px 22px rgba(255, 255, 255, 0.04);
+  --shadow-card-hover: 14px 14px 28px rgba(0, 0, 0, 0.55), -14px -14px 28px rgba(255, 255, 255, 0.05);
+  --shadow-button: 6px 6px 14px rgba(0, 0, 0, 0.4), -6px -6px 14px rgba(255, 255, 255, 0.04);
+  --shadow-button-hover: 8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(255, 255, 255, 0.05);
+  --shadow-button-active: inset 5px 5px 10px rgba(0, 0, 0, 0.4), inset -5px -5px 10px rgba(255, 255, 255, 0.03);
+  --shadow-accent: 6px 6px 14px rgba(37, 99, 235, 0.5), -6px -6px 14px rgba(255, 255, 255, 0.15);
+  --shadow-accent-hover: 8px 8px 18px rgba(37, 99, 235, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.2);
+  --shadow-accent-active: inset 5px 5px 10px rgba(0, 0, 0, 0.4);
+  --shadow-input: inset 5px 5px 10px rgba(0, 0, 0, 0.45), inset -5px -5px 10px rgba(255, 255, 255, 0.03);
+  --shadow-icon-container: 6px 6px 12px rgba(0, 0, 0, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.04);
+  --shadow-badge: 3px 3px 8px rgba(0, 0, 0, 0.3), -3px -3px 8px rgba(255, 255, 255, 0.03);
+  --shadow-modal: 16px 16px 36px rgba(0, 0, 0, 0.55), -16px -16px 36px rgba(255, 255, 255, 0.06);
+}
+
+@theme {
+  --color-bg-soft: var(--bg-color);
+  --color-text-soft: var(--text-color);
+  --color-text-muted: var(--text-muted);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+/* Smooth theme transition helper */
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 0.6s ease-in-out !important, color 0.6s ease-in-out !important, box-shadow 0.6s ease-in-out !important, border-color 0.6s ease-in-out !important;
+}
+
+/* Custom premium Neumorphic styles */
+.soft-bg {
+  background-color: var(--bg-color);
+}
+
+.soft-shadow-raised {
+  box-shadow: var(--shadow-raised);
+}
+
+.soft-shadow-raised-lg {
+  box-shadow: var(--shadow-raised-lg);
+}
+
+.soft-shadow-small {
+  box-shadow: var(--shadow-small);
+}
+
+.soft-shadow-inset {
+  box-shadow: var(--shadow-inset);
+}
+
+/* Soft UI Components */
+.SoftCard {
+  background-color: var(--bg-color);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  border: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.SoftCardHover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.SoftButton {
+  background-color: var(--bg-color);
+  border-radius: 12px;
+  color: var(--text-color);
+  font-weight: 500;
+  box-shadow: var(--shadow-button);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none !important;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.SoftButton:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.SoftButton:active, .SoftButtonActive {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--shadow-button-active) !important;
+}
+
+.SoftButtonAccent {
+  background-color: #2563EB;
+  color: #FFFFFF;
+  box-shadow: var(--shadow-accent);
+}
+
+.SoftButtonAccent:hover {
+  background-color: #1d4ed8;
+  box-shadow: var(--shadow-accent-hover);
+}
+
+.SoftButtonAccent:active {
+  box-shadow: var(--shadow-accent-active) !important;
+}
+
+.SoftButtonDanger {
+  color: #EF4444;
+  box-shadow: var(--shadow-button);
+}
+
+.SoftButtonDanger:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.SoftInput {
+  background-color: var(--bg-color);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--text-color);
+  border: none !important;
+  box-shadow: var(--shadow-input);
+  outline: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.SoftInput:focus {
+  outline: 1.5px solid #2563EB;
+  outline-offset: 1px;
+}
+
+.SoftIconContainer {
+  width: 40px;
+  height: 40px;
+  background-color: var(--bg-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-icon-container);
+  color: var(--text-color);
+}
+
+.SoftBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: var(--shadow-badge);
+  background-color: var(--bg-color);
+  border: none !important;
+}
+
+.SoftBadgeGreen {
+  color: #166534;
+  background-color: #f0fdf4;
+}
+.dark .SoftBadgeGreen {
+  color: #4ade80;
+  background-color: rgba(22, 101, 52, 0.2);
+}
+
+.SoftBadgeRed {
+  color: #991b1b;
+  background-color: #fef2f2;
+}
+.dark .SoftBadgeRed {
+  color: #fca5a5;
+  background-color: rgba(153, 27, 27, 0.2);
+}
+
+.SoftBadgeAmber {
+  color: #92400e;
+  background-color: #fffbeb;
+}
+.dark .SoftBadgeAmber {
+  color: #fcd34d;
+  background-color: rgba(146, 64, 14, 0.2);
+}
+
+.SoftBadgeBlue {
+  color: #1e40af;
+  background-color: #eff6ff;
+}
+.dark .SoftBadgeBlue {
+  color: #93c5fd;
+  background-color: rgba(30, 64, 175, 0.2);
+}
+
+.SoftModal {
+  background-color: var(--bg-color);
+  border-radius: 24px;
+  box-shadow: var(--shadow-modal);
+  border: none !important;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Recharts tooltip overrides for Neumorphic styling */
+.recharts-default-tooltip {
+  background-color: var(--bg-color) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-small) !important;
+  color: var(--text-color) !important;
+}
+.recharts-tooltip-label {
+  color: var(--text-color) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+}

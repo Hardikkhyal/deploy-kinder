@@ -1,0 +1,36 @@
+version: '3.8'
+
+# ────────────────────────────────────────────────────────────────
+# DevOpsHub — Docker Compose
+#
+# Before starting:
+#   1. Copy backend/.env.example → backend/.env
+#   2. Fill in your own values (JWT_SECRET, ENCRYPTION_KEY, etc.)
+#   3. Run: docker compose up -d
+# ────────────────────────────────────────────────────────────────
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: devopshub-api
+    ports:
+      - "${PORT:-4000}:4000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend/prisma:/app/prisma
+    restart: unless-stopped
+    networks:
+      - devopshub-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  devopshub-network:
+    name: devopshub-network
