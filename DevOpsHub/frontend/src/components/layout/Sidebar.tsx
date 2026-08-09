@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, FileCode, Link2, LogOut, Sun, Moon } from 'lucide-react';
+import { Info, FileCode, Link2, LogOut, Sun, Moon, Server } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
@@ -44,9 +44,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-bg-soft flex flex-col justify-between p-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight text-text-soft mb-8 flex items-center justify-between px-3">
+        <h2 className="text-xl font-bold tracking-tight text-white mb-8 flex items-center justify-between px-3">
           <div className="flex items-center gap-1.5">
-            <span>DevOpsHub</span>
+            <span>SELFHOST</span>
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 self-end mb-1.5"></span>
           </div>
           <button
@@ -60,8 +60,8 @@ export default function Sidebar() {
         </h2>
         <nav className="space-y-2 flex flex-col">
           <Link to="/" className={linkClass('/')}>
-            <LayoutDashboard size={18} />
-            <span>Dashboard</span>
+            <Info size={18} />
+            <span>About Us</span>
           </Link>
           <Link to="/projects" className={linkClass('/projects')}>
             <FileCode size={18} />
@@ -70,6 +70,10 @@ export default function Sidebar() {
           <Link to="/integrations" className={linkClass('/integrations')}>
             <Link2 size={18} />
             <span>Integrations</span>
+          </Link>
+          <Link to="/servers" className={linkClass('/servers')}>
+            <Server size={18} />
+            <span>Servers</span>
           </Link>
         </nav>
       </div>

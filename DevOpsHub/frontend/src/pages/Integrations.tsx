@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
 import AppLayout from '../components/layout/AppLayout';
-import { Key, Github, Server, Cloud, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Github, Cloud, CheckCircle2, Key, Trash2, Plus } from 'lucide-react';
+import { useToastStore } from '../store/toastStore';
 
 export default function Integrations() {
   const [githubToken, setGithubToken] = useState('');
@@ -12,19 +13,11 @@ export default function Integrations() {
   const [accessKey, setAccessKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [awsRegion, setAwsRegion] = useState('us-east-1');
-  
-  // SSH Instance form states
-  const [serverName, setServerName] = useState('');
-  const [publicIp, setPublicIp] = useState('');
-  const [sshUser, setSshUser] = useState('ubuntu');
-  const [privateKey, setPrivateKey] = useState('');
-  const [selectedAwsCred, setSelectedAwsCred] = useState('');
-  const [selectedAwsInstanceId, setSelectedAwsInstanceId] = useState('');
-  
-  // Query results
-  const [awsInstances, setAwsInstances] = useState<any[]>([]);
-  const [loadingInstances, setLoadingInstances] = useState(false);
 
+  const [deletingGithub, setDeletingGithub] = useState(false);
+  const [deletingAwsId, setDeletingAwsId] = useState<string | null>(null);
+  const { showToast } = useToastStore();
+  
   const fetchIntegrations = async () => {
     try {
       const res = await api.get('/auth/integrations');
@@ -42,11 +35,12 @@ export default function Integrations() {
     e.preventDefault();
     try {
       await api.post('/auth/github', { githubToken });
-      alert('GitHub token linked!');
+      showToast('GitHub token linked!', 'success');
       setGithubToken('');
       fetchIntegrations();
     } catch (err) {
       console.error(err);
+      showToast('Failed to link GitHub token', 'error');
     }
   };
 
@@ -59,211 +53,176 @@ export default function Integrations() {
         secretAccessKey: secretKey,
         region: awsRegion
       });
-      alert('AWS credentials saved!');
+      showToast('AWS credentials saved!', 'success');
       setAwsName('');
       setAccessKey('');
       setSecretKey('');
       fetchIntegrations();
     } catch (err) {
       console.error(err);
+      showToast('Failed to save AWS credentials', 'error');
     }
   };
 
-  const handleFetchInstances = async (credId: string) => {
-    setLoadingInstances(true);
+  const handleDeleteGithub = async () => {
+    if (!confirm('Disconnect your GitHub token? You will need to re-add it to deploy from GitHub.')) return;
+    setDeletingGithub(true);
     try {
-      const res = await api.get(`/auth/aws/${credId}/instances`);
-      setAwsInstances(res.data);
-      setSelectedAwsCred(credId);
-    } catch (err) {
-      alert('Failed to query instances from AWS. Check your key permissions.');
-      console.error(err);
-    } finally {
-      setLoadingInstances(false);
-    }
-  };
-
-  const handleAddServer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/auth/instances', {
-        name: serverName,
-        publicIp,
-        sshUser,
-        sshPrivateKey: privateKey,
-        awsCredId: selectedAwsCred || null,
-        awsInstanceId: selectedAwsInstanceId || null,
-      });
-      alert('Server Instance registered!');
-      setServerName('');
-      setPublicIp('');
-      setPrivateKey('');
-      setSelectedAwsInstanceId('');
+      await api.delete('/auth/github');
       fetchIntegrations();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingGithub(false);
     }
   };
 
-  const selectQueriedInstance = (inst: any) => {
-    setServerName(inst.name);
-    setPublicIp(inst.publicIp);
-    setSelectedAwsInstanceId(inst.instanceId);
+  const handleDeleteAws = async (credId: string) => {
+    if (!confirm('Delete this AWS credential? Any linked servers may lose connection.')) return;
+    setDeletingAwsId(credId);
+    try {
+      await api.delete(`/auth/aws/${credId}`);
+      fetchIntegrations();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeletingAwsId(null);
+    }
   };
+
+
 
   return (
     <AppLayout>
-      <h1 className="text-3xl font-bold tracking-tight text-text-soft mb-8">Cloud & VCS Integrations</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-white">Cloud & VCS Integrations</h1>
+        <p className="text-xs text-white/50 mt-1">Connect your version control and cloud providers to enable deployments.</p>
+      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* GitHub integration */}
-        <div className="SoftCard">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="SoftIconContainer">
-              <Github size={18} />
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
+            <div className="w-8 h-8 rounded-lg bg-white/5 text-white/50 flex items-center justify-center border border-white/10">
+              <Github size={16} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-text-soft tracking-tight">GitHub Access Link</h3>
-              <p className="text-xs text-text-muted font-medium">Provide token to select and deploy repositories</p>
+              <h3 className="text-sm font-bold text-white tracking-tight">GitHub Access Link</h3>
+              <p className="text-[10px] text-white/50 font-medium">Provide token to select and deploy repositories</p>
             </div>
             {integrations.githubConnected && (
-              <span className="ml-auto text-xs SoftBadge SoftBadgeGreen">
+              <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-[#28c840] bg-[#28c840]/10 px-2 py-1 rounded-md shrink-0">
                 <CheckCircle2 size={12} /> Connected
               </span>
             )}
           </div>
           <form onSubmit={handleConnectGithub} className="space-y-4">
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Personal Access Token</label>
+              <label className="block text-[10px] uppercase tracking-wider text-white/50 mb-1.5 font-semibold">Personal Access Token</label>
               <input
                 type="password"
                 value={githubToken}
                 onChange={(e) => setGithubToken(e.target.value)}
-                className="SoftInput w-full font-mono placeholder-neutral-350"
+                className="w-full bg-black/20 ring-1 ring-white/10 rounded-md px-3 py-2 text-white placeholder-white/30 text-xs font-mono focus:ring-blue-500 outline-none transition-all"
                 placeholder="ghp_********************************"
                 required
               />
             </div>
-            <button type="submit" className="SoftButton px-5 py-3 text-sm font-semibold hover:shadow-sm">
-              Save VCS Token
-            </button>
+            <div className="flex items-center gap-3 pt-2">
+              <button type="submit" className="bg-white/5 hover:bg-white/10 text-white text-xs font-medium px-5 py-2.5 rounded-md ring-1 ring-white/10 transition-colors">
+                Save VCS Token
+              </button>
+              {integrations.githubConnected && (
+                <button
+                  type="button"
+                  onClick={handleDeleteGithub}
+                  disabled={deletingGithub}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium px-4 py-2.5 rounded-md ring-1 ring-red-500/20 transition-colors flex items-center gap-1.5"
+                >
+                  <Trash2 size={13} />
+                  {deletingGithub ? 'Disconnecting…' : 'Disconnect'}
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
         {/* AWS Credentials */}
-        <div className="SoftCard">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="SoftIconContainer">
-              <Cloud size={18} />
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
+            <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center border border-orange-500/20">
+              <Cloud size={16} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-text-soft tracking-tight">AWS IAM Credentials</h3>
-              <p className="text-xs text-text-muted font-medium">Authorize access to list EC2 server instances</p>
+              <h3 className="text-sm font-bold text-white tracking-tight">AWS IAM Credentials</h3>
+              <p className="text-[10px] text-white/50 font-medium">Authorize access to list EC2 server instances</p>
             </div>
+            {integrations.awsConnected && (
+              <span className="ml-auto flex items-center gap-1 text-[10px] font-semibold text-[#28c840] bg-[#28c840]/10 px-2 py-1 rounded-md shrink-0">
+                <CheckCircle2 size={12} /> Connected
+              </span>
+            )}
           </div>
-          <form onSubmit={handleConnectAws} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleConnectAws} className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2">
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Account Label Name</label>
-              <input type="text" value={awsName} onChange={(e) => setAwsName(e.target.value)} className="SoftInput w-full" placeholder="My EC2 Project Provider" required />
+              <label className="block text-[10px] uppercase tracking-wider text-white/50 mb-1.5 font-semibold">Account Label Name</label>
+              <input type="text" value={awsName} onChange={(e) => setAwsName(e.target.value)} className="w-full bg-black/20 ring-1 ring-white/10 rounded-md px-3 py-2 text-white placeholder-white/30 text-xs focus:ring-blue-500 outline-none transition-all" placeholder="My EC2 Project Provider" required />
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Access Key ID</label>
-              <input type="text" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} className="SoftInput w-full font-mono" required />
+              <label className="block text-[10px] uppercase tracking-wider text-white/50 mb-1.5 font-semibold">Access Key ID</label>
+              <input type="text" value={accessKey} onChange={(e) => setAccessKey(e.target.value)} className="w-full bg-black/20 ring-1 ring-white/10 rounded-md px-3 py-2 text-white placeholder-white/30 text-xs font-mono focus:ring-blue-500 outline-none transition-all" placeholder="AKIA..." required />
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Secret Access Key</label>
-              <input type="password" value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="SoftInput w-full font-mono" required />
+              <label className="block text-[10px] uppercase tracking-wider text-white/50 mb-1.5 font-semibold">Secret Access Key</label>
+              <input type="password" value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="w-full bg-black/20 ring-1 ring-white/10 rounded-md px-3 py-2 text-white placeholder-white/30 text-xs font-mono focus:ring-blue-500 outline-none transition-all" placeholder="****************" required />
             </div>
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Region</label>
-              <input type="text" value={awsRegion} onChange={(e) => setAwsRegion(e.target.value)} className="SoftInput w-full" required />
+              <label className="block text-[10px] uppercase tracking-wider text-white/50 mb-1.5 font-semibold">Region</label>
+              <input type="text" value={awsRegion} onChange={(e) => setAwsRegion(e.target.value)} className="w-full bg-black/20 ring-1 ring-white/10 rounded-md px-3 py-2 text-white placeholder-white/30 text-xs focus:ring-blue-500 outline-none transition-all" placeholder="us-east-1" required />
             </div>
-            <div className="md:col-span-2">
-              <button type="submit" className="SoftButton px-5 py-3 text-sm font-semibold hover:shadow-sm">
-                Save AWS Keys
+            <div className="md:col-span-2 pt-2">
+              <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium px-6 py-2.5 rounded-md transition-colors flex items-center justify-center gap-2">
+                <Plus size={14} /> Save AWS Keys
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Connected AWS Account Cards */}
-        <div className="xl:col-span-1 space-y-4">
-          <h2 className="text-xl font-bold tracking-tight text-text-soft mb-4 flex items-center gap-2">
-            <Key size={18} className="text-text-muted" /> Connected AWS Keys
+      {/* ── Connected AWS Keys List ── */}
+      {integrations.awsCreds && integrations.awsCreds.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <Key size={14} className="text-white/40" /> Connected AWS Keys
           </h2>
-          {integrations.awsCreds.length === 0 ? (
-            <div className="text-text-muted italic text-sm font-medium">No AWS Credentials connected yet.</div>
-          ) : (
-            integrations.awsCreds.map((c: any) => (
-              <div key={c.id} className="bg-bg-soft soft-shadow-small p-5 rounded-[18px] flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-text-soft text-sm tracking-tight">{c.name}</h4>
-                  <p className="text-[10px] text-text-muted font-mono uppercase mt-0.5 font-bold">{c.region}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {integrations.awsCreds.map((cred: any) => (
+              <div
+                key={cred.id}
+                className="bg-black/30 border border-white/5 rounded-lg p-4 flex items-center justify-between gap-3 transition-all hover:border-white/10"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                    <Key size={14} className="text-orange-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-white text-xs truncate">{cred.name}</p>
+                    <p className="text-[9px] font-mono font-semibold text-white/40 uppercase tracking-wider mt-0.5">{cred.region}</p>
+                  </div>
                 </div>
-                <button onClick={() => handleFetchInstances(c.id)} className="SoftButton text-xs px-3 py-2 hover:shadow-sm flex items-center gap-1 font-semibold">
-                  {loadingInstances ? 'Loading...' : 'Fetch EC2s'} <ChevronRight size={14} />
+                <button
+                  onClick={() => handleDeleteAws(cred.id)}
+                  disabled={deletingAwsId === cred.id}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 ring-1 ring-red-500/20 px-2 py-1.5 rounded-md text-[10px] font-medium shrink-0 flex items-center gap-1"
+                >
+                  <Trash2 size={11} />
+                  {deletingAwsId === cred.id ? '...' : 'Remove'}
                 </button>
               </div>
-            ))
-          )}
-
-          {/* AWS EC2 Query Results */}
-          {awsInstances.length > 0 && (
-            <div className="SoftCard mt-6">
-              <h3 className="font-bold text-text-soft text-sm mb-4">Select EC2 Instance</h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                {awsInstances.map((inst) => (
-                  <div key={inst.instanceId} onClick={() => selectQueriedInstance(inst)} className="bg-bg-soft soft-shadow-inset hover:soft-shadow-small hover:bg-bg-soft p-3 rounded-[12px] cursor-pointer transition-colors text-left">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs font-bold text-text-soft">{inst.name}</span>
-                      <span className="text-[10px] uppercase font-bold text-blue-600 bg-blue-50 border border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400 px-1.5 py-0.5 rounded">{inst.state}</span>
-                    </div>
-                    <div className="text-[11px] text-text-muted font-mono font-semibold">{inst.publicIp}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-
-        {/* Server Instance Register Form */}
-        <div className="xl:col-span-2 SoftCard">
-          <h2 className="text-xl font-bold tracking-tight text-text-soft mb-6 flex items-center gap-2">
-            <Server size={18} className="text-text-muted" /> Link Deploy Target EC2 Server
-          </h2>
-          <form onSubmit={handleAddServer} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Server Label Name</label>
-              <input type="text" value={serverName} onChange={(e) => setServerName(e.target.value)} className="SoftInput w-full" placeholder="My AWS Production VM" required />
-            </div>
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Public IP / Host</label>
-              <input type="text" value={publicIp} onChange={(e) => setPublicIp(e.target.value)} className="SoftInput w-full font-mono" placeholder="e.g. 1.2.3.4" required />
-            </div>
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">SSH Username</label>
-              <input type="text" value={sshUser} onChange={(e) => setSshUser(e.target.value)} className="SoftInput w-full" required />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-[11px] uppercase tracking-wider text-text-muted mb-2 font-semibold">Private SSH Key (PEM format)</label>
-              <textarea
-                value={privateKey}
-                onChange={(e) => setPrivateKey(e.target.value)}
-                className="SoftInput w-full font-mono text-xs h-32 leading-relaxed"
-                placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----"
-                required
-              />
-            </div>
-            <div className="md:col-span-2">
-              <button type="submit" className="SoftButton px-5 py-3 text-sm font-semibold hover:shadow-sm">
-                Register Target Server
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      )}
     </AppLayout>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { ChevronDown, ChevronRight, CheckCircle2, XCircle, PlayCircle, HelpCircle } from 'lucide-react';
 
@@ -13,6 +13,7 @@ interface LogTerminalProps {
   initialStages: Stage[];
 }
 
+// Shared constant — defined once at module level, not inside component
 const STAGE_ORDER = [
   'Validating Configuration',
   'SSH Authentication',
@@ -38,19 +39,42 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
   const [expandedStages, setExpandedStages] = useState<{ [key: string]: boolean }>(() => {
     const initial: { [key: string]: boolean } = {};
     initialStages.forEach((s) => {
-      // Auto-expand active or failed stages
       initial[s.name] = s.status === 'RUNNING' || s.status === 'FAILED';
     });
     return initial;
   });
 
   const consoleBottomRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const logQueueRef = useRef<{ [key: string]: string[] }>({});
+  const hasUpdatesRef = useRef<boolean>(false);
+  // Track which stage is currently active so we can scroll only that one
+  const activeStageRef = useRef<string | null>(null);
 
   useEffect(() => {
     const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:4000';
     const socket = io(wsUrl);
 
     socket.emit('join-container-logs', projectId);
+
+    const flushInterval = setInterval(() => {
+      if (!hasUpdatesRef.current) return;
+
+      setStageLogs((prev) => {
+        const next = { ...prev };
+        let modified = false;
+        Object.keys(logQueueRef.current).forEach((stage) => {
+          const queued = logQueueRef.current[stage];
+          if (queued && queued.length > 0) {
+            next[stage] = [...(next[stage] || []), ...queued];
+            logQueueRef.current[stage] = [];
+            modified = true;
+          }
+        });
+        return modified ? next : prev;
+      });
+
+      hasUpdatesRef.current = false;
+    }, 150);
 
     socket.on('log-line', (data: any) => {
       let stage = 'General';
@@ -68,15 +92,13 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
         }
       }
 
-      setStageLogs((prev) => {
-        const current = prev[stage] || [];
-        return {
-          ...prev,
-          [stage]: [...current, text]
-        };
-      });
+      if (!logQueueRef.current[stage]) {
+        logQueueRef.current[stage] = [];
+      }
+      logQueueRef.current[stage].push(text);
+      hasUpdatesRef.current = true;
+      activeStageRef.current = stage;
 
-      // Auto-expand stage if logs start coming in
       setExpandedStages((prev) => {
         if (prev[stage]) return prev;
         return { ...prev, [stage]: true };
@@ -92,7 +114,6 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
           return s;
         });
 
-        // If the stage is not in current list, append it (fallback)
         if (!updated.some((s) => s.name === data.stage)) {
           updated.push({ name: data.stage, status: data.status, logs: '' });
         }
@@ -101,6 +122,7 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
       });
 
       if (data.status === 'RUNNING' || data.status === 'FAILED') {
+        activeStageRef.current = data.stage;
         setExpandedStages((prev) => ({
           ...prev,
           [data.stage]: true
@@ -110,19 +132,22 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
 
     return () => {
       socket.disconnect();
+      clearInterval(flushInterval);
     };
   }, [projectId]);
 
-  // Scroll active/expanded stage to bottom when new logs arrive
+  // Scroll only the single active/most-recently-updated stage to bottom.
+  // Previously this looped through ALL expanded stages on every log update —
+  // O(n) DOM queries per 150ms flush tick. Now it's O(1).
   useEffect(() => {
-    Object.keys(expandedStages).forEach((stageName) => {
-      if (expandedStages[stageName]) {
-        consoleBottomRefs.current[stageName]?.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
+    const active = activeStageRef.current;
+    if (active && expandedStages[active]) {
+      consoleBottomRefs.current[active]?.scrollIntoView({ behavior: 'auto' });
+    }
   }, [stageLogs, expandedStages]);
 
-  const getStatusIcon = (status: string) => {
+  // useCallback: stable identity prevents row-level re-renders
+  const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case 'SUCCESS':
         return <CheckCircle2 className="text-emerald-500 w-4 h-4 flex-shrink-0" />;
@@ -135,21 +160,24 @@ export default function LogTerminal({ projectId, initialStages }: LogTerminalPro
       default:
         return <div className="w-4 h-4 rounded-full border border-neutral-200 flex-shrink-0 bg-white" />;
     }
-  };
+  }, []);
 
-  const toggleStage = (stageName: string) => {
+  const toggleStage = useCallback((stageName: string) => {
     setExpandedStages((prev) => ({
       ...prev,
       [stageName]: !prev[stageName]
     }));
-  };
+  }, []);
 
-  // Sort displayed stages according to STAGE_ORDER
-  const sortedStages = [...stages].sort((a, b) => {
-    const idxA = STAGE_ORDER.indexOf(a.name);
-    const idxB = STAGE_ORDER.indexOf(b.name);
-    return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-  });
+  // useMemo: the array spread + sort was running on every single render tick.
+  // Now it only recomputes when the stages array reference changes.
+  const sortedStages = useMemo(() => {
+    return [...stages].sort((a, b) => {
+      const idxA = STAGE_ORDER.indexOf(a.name);
+      const idxB = STAGE_ORDER.indexOf(b.name);
+      return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+    });
+  }, [stages]);
 
   return (
     <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">

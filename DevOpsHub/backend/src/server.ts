@@ -3,7 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import prisma from './prisma';
 import authRouter from './routes/authRoutes';
 import projectRouter from './routes/projectRoutes';
 import { errorHandler } from './middleware/errorHandler';
@@ -59,8 +59,6 @@ io.on('connection', (socket) => {
 });
 
 app.use(errorHandler);
-
-const prisma = new PrismaClient();
 async function selfHealDatabase() {
   try {
     const servers = await prisma.serverInstance.findMany();

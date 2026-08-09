@@ -1,26 +1,25 @@
-# Dependencies
+
 node_modules/
 .pnp
 .pnp.js
 
-# Environment Variables (NEVER commit these)
+
 .env
 .env.local
 .env.production
 .env.*.local
 
-# Build outputs
+
 dist/
 build/
 *.tsbuildinfo
 
-# Logs
+
 *.log
 logs/
 npm-debug.log*
 yarn-debug.log*
 
-# Database files (contain your personal data)
 *.db
 *.db-journal
 *.sqlite
@@ -28,7 +27,7 @@ yarn-debug.log*
 prisma/dev.db
 prisma/*.db
 
-# Terraform - contains your AWS account IDs, IPs, resource IDs
+
 **/*.tfstate
 **/*.tfstate.*
 **/.terraform/
@@ -37,12 +36,11 @@ prisma/*.db
 **/terraform.tfvars.json
 **/*.tfplan
 
-# Ansible - contains your server IPs and SSH key paths
+
 infrastructure/ansible/hosts.ini
 infrastructure/ansible/host_vars/
 infrastructure/ansible/group_vars/
 
-# SSH Keys (NEVER commit)
 *.pem
 *.ppk
 id_rsa
@@ -51,23 +49,21 @@ id_ed25519
 id_ed25519.pub
 *.key
 
-# OS
+
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editor
+
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Deployments (runtime data)
 DevOpsHub/backend/deployments/
 
-# Backups
+
 backups/
 
-# Misc
 .cache/
 coverage/

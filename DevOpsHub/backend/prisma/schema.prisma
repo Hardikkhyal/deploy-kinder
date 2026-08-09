@@ -10,6 +10,7 @@ generator client {
 model User {
   id           String           @id @default(uuid())
   email        String           @unique
+  password     String?
   username     String?
   googleId     String?          @unique
   githubToken  String?
@@ -56,6 +57,9 @@ model Project {
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   server      ServerInstance @relation(fields: [serverId], references: [id], onDelete: Cascade)
   deployments Deployment[]
+
+  @@index([userId])
+  @@index([serverId])
 }
 
 model Deployment {
@@ -68,6 +72,8 @@ model Deployment {
   completedAt DateTime?
   project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   stages      DeploymentStage[]
+
+  @@index([projectId])
 }
 
 model DeploymentStage {
@@ -84,6 +90,8 @@ model DeploymentStage {
   suggestedFix   String?
   canRetry       Boolean    @default(false)
   deployment     Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+
+  @@index([deploymentId])
 }
 
 model OtpVerification {

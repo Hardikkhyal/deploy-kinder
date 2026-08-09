@@ -7,11 +7,20 @@ import {
   connectAws,
   listAwsInstances,
   addServerInstance,
+  deleteServerInstance,
+  deleteGithubToken,
+  deleteAwsCredential,
+  register,
+  loginWithPassword,
 } from '../controllers/authController';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { rateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// Password Auth
+router.post('/register', register);
+router.post('/login', loginWithPassword);
 
 // Limit requests to OTP endpoints to prevent brute forcing
 router.post('/send-otp', rateLimiter(5, 15 * 60 * 1000), sendOtp);
@@ -24,5 +33,8 @@ router.post('/github', connectGithub);
 router.post('/aws', connectAws);
 router.get('/aws/:credId/instances', listAwsInstances);
 router.post('/instances', addServerInstance);
+router.delete('/instances/:id', deleteServerInstance);
+router.delete('/github', deleteGithubToken);
+router.delete('/aws/:credId', deleteAwsCredential);
 
 export default router;
