@@ -1,0 +1,123 @@
+{
+  "hero": {
+    "headline": "Total Sovereignty. Zero Friction.",
+    "description": "DevOpsHub is an open-source, self-hosted Platform-as-a-Service. Paste your GitHub URL, click Deploy, and let our 9-stage pipeline build your Docker image and stream real-time logs directly to your browser—all on your own infrastructure.",
+    "primaryCta": "Deploy Your App",
+    "secondaryCta": "View on GitHub",
+    "trustStatement": "Runs on AWS Free Tier. Open Source. Self-Hosted."
+  },
+  "problem": {
+    "title": "The Problem",
+    "description": "Deploying web applications to cloud servers is complex and manual. Existing solutions are insufficient.",
+    "points": [
+      "Manual SSH, git clone, and docker build for every deployment.",
+      "No visibility into what's happening on the server.",
+      "Expensive proprietary PaaS platforms like Heroku charging per dyno.",
+      "Complex Nginx reverse-proxy configurations for every application."
+    ]
+  },
+  "solution": {
+    "title": "The Solution",
+    "description": "DevOpsHub automates every single step from a simple web dashboard. Think of it as hiring an automated kitchen manager who does everything for you the moment new code arrives—and sends you live updates on your dashboard."
+  },
+  "whyChooseUs": [
+    {
+      "title": "Zero-Cost",
+      "description": "Optimized to run on t2.micro or t3.micro (AWS Free Tier) without paying $7+/dyno/month."
+    },
+    {
+      "title": "Total Sovereignty",
+      "description": "Deploy on your AWS EC2 instance. You own the infrastructure and your database records."
+    },
+    {
+      "title": "Secure By Default",
+      "description": "Built-in AES-256-GCM encryption for secrets, JWT authentication, and rate limiting."
+    }
+  ],
+  "features": [
+    {
+      "title": "One-Click Deployment",
+      "description": "Select a project, click Deploy, and the 9-stage pipeline runs automatically."
+    },
+    {
+      "title": "Real-Time Log Streaming",
+      "description": "Live build and deploy logs streamed directly to the browser via Socket.io WebSockets."
+    },
+    {
+      "title": "Auto Framework Detection",
+      "description": "Automatically detects static sites, Node.js apps, or Docker Compose projects and generates the appropriate configuration."
+    },
+    {
+      "title": "Self-Healing Mechanisms",
+      "description": "Automatic port conflict resolution, disk space cleanup, and corrupted clone recovery."
+    },
+    {
+      "title": "Server Monitoring",
+      "description": "CPU and RAM utilization charts ready for Grafana."
+    }
+  ],
+  "aboutUs": {
+    "title": "Built for Builders",
+    "description": "DevOpsHub was conceived to solve a real problem: students, freelancers, and small dev teams needed an affordable, self-hosted alternative to expensive proprietary PaaS solutions."
+  },
+  "howItWorks": [
+    {
+      "step": 1,
+      "title": "Connect Repository",
+      "description": "Paste your GitHub repository URL."
+    },
+    {
+      "step": 2,
+      "title": "Configure Server",
+      "description": "Save your target EC2 server with its IP and encrypted PEM private key."
+    },
+    {
+      "step": 3,
+      "title": "One-Click Deploy",
+      "description": "Click deploy, and DevOpsHub automatically SSHs into your server."
+    },
+    {
+      "step": 4,
+      "title": "Real-Time Build",
+      "description": "The 9-stage pipeline clones, builds a Docker image, and starts the container."
+    },
+    {
+      "step": 5,
+      "title": "Go Live",
+      "description": "Get a live URL instantly with real-time logs."
+    }
+  ],
+  "benefits": [
+    {
+      "title": "Automated Containerization",
+      "description": "Generates robust Docker configurations automatically, stripping away the friction of manual DevOps."
+    },
+    {
+      "title": "Live Observability",
+      "description": "Absolute transparency, rendered in real-time."
+    },
+    {
+      "title": "Uncompromising Privacy",
+      "description": "You own the infrastructure, the access keys, and your database records."
+    }
+  ],
+  "faq": [
+    {
+      "question": "How much does it cost?",
+      "answer": "DevOpsHub is open-source and optimized to run on the AWS Free Tier, meaning $0/month for 12 months on a t3.micro."
+    },
+    {
+      "question": "Do I need to know Docker?",
+      "answer": "No. The Auto Framework Detection automatically generates Docker configurations for static HTML and Node.js applications."
+    },
+    {
+      "question": "Is my AWS data secure?",
+      "answer": "Yes. All sensitive data (GitHub token, AWS secret key, SSH private key) is encrypted with AES-256-GCM before database storage."
+    }
+  ],
+  "cta": {
+    "headline": "Take Control of Your Deployments",
+    "description": "Stop paying for proprietary platforms. Host your own PaaS today.",
+    "buttonText": "Get Started Now"
+  }
+}

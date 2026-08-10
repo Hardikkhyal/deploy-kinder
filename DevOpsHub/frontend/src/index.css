@@ -1,5 +1,4 @@
-/* Single combined Google Fonts request — 3 separate imports would open 3 TCP connections */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Anton&family=Iceberg&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 @import "tailwindcss";
 
@@ -30,7 +29,8 @@ html {
   --color-bg-surface: var(--bg-surface);
   --color-text-soft: var(--text-color);
   --color-text-muted: var(--text-muted);
-  --font-sans: 'Nimbus Sans TW01', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-sans: 'Hanken Grotesk', sans-serif;
+  --font-serif: 'Playfair Display', serif;
 }
 
 @keyframes fade-up {

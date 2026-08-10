@@ -67,3 +67,4 @@ backups/
 
 .cache/
 coverage/
+report_generator
